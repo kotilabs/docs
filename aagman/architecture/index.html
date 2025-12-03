@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aagman | System Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+        }
+
+        /* Palette: 
+           Background: #0f172a (Deep Navy)
+           Card: #1e293b (Slate 800)
+           Primary: #3b82f6 (Blue 500)
+           Accent: #8b5cf6 (Violet 500)
+           Success: #10b981 (Emerald 500)
+           Warning: #f59e0b (Amber 500)
+        */
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .step-arrow::after {
+            content: '⬇';
+            display: block;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #64748b;
+            margin: 0.5rem 0;
+        }
+        
+        @media (min-width: 768px) {
+            .step-arrow::after {
+                content: '➡';
+                display: inline-block;
+                margin: 0 1rem;
+            }
+        }
+        
+        .hide-last-arrow:last-child .step-arrow::after {
+            display: none;
+        }
+
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500 selection:text-white pb-20">
+
+    <header class="relative overflow-hidden bg-slate-900 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-500 mb-4 tracking-tight">
+                Aagman
+            </h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+                Architecture Diagram for Intelligent Trading, Strategy Backtesting, and Automated Execution.
+            </p>
+            <div class="mt-8 flex justify-center gap-4">
+                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-blue-400 font-semibold">
+                    🤖 Agentic Layer
+                </div>
+                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-violet-400 font-semibold">
+                    🧠 Trading Intelligence
+                </div>
+                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-emerald-400 font-semibold">
+                    🛡️ SEBI Compliance
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <section>
+            <div class="mb-8 border-l-4 border-blue-500 pl-4">
+                <h2 class="text-3xl font-bold text-white mb-2">System Composition</h2>
+                <p class="text-slate-400">
+                    Aagman is a layered system designed for modularity. It connects user surfaces to deep financial intelligence, supported by a robust connector layer for real-time market access.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="glass-panel p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-2">Architectural Distribution</h3>
+                    <h5 class="text-m text-gray mb-4">by complexity</h3>
+                    <div class="chart-container">
+                        <canvas id="compositionChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-4 text-center">
+                        <span class="font-bold text-blue-400">Insight:</span> The "Trading Intelligence" layer (Strategy, Risk, Research) constitutes the core logic mass, highlighting the system's focus on analytical depth.
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-bold text-white">User Surfaces</h4>
+                        <p class="text-sm text-slate-400">Web, Mobile, Extensions, &amp; SDKs serving as the entry point.</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-violet-500">
+                        <h4 class="font-bold text-white">Agentic Co-Pilot</h4>
+                        <p class="text-sm text-slate-400">Intent routing, planning, and user memory handling multi-modal inputs.</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-orange-500">
+                        <h4 class="font-bold text-white">Trading Intelligence</h4>
+                        <p class="text-sm text-slate-400">The "Brain": DSL conversion, strategy management, risk engines, and explainability.</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
+                        <h4 class="font-bold text-white">Connector Layer</h4>
+                        <p class="text-sm text-slate-400">API/DOM connections to Brokers, Markets, and Portfolio Sync.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="mb-8 border-l-4 border-violet-500 pl-4">
+                <h2 class="text-3xl font-bold text-white mb-2">The Agentic Brain</h2>
+                <p class="text-slate-400">
+                    This layer translates human intent into executable financial actions. It handles multi-modal input (voice/text) and orchestrates complex trading workflows.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-panel p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-4">Agent Capabilities Score</h3>
+                    <div class="chart-container">
+                        <canvas id="agentRadarChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-4 text-center">
+                        <span class="font-bold text-violet-400">Insight:</span> High "Intent Recognition" and "Context Retention" are critical for accurately interpreting complex user strategies like "Hedge my portfolio if Nifty drops 2%."
+                    </p>
+                </div>
+                
+                <div class="glass-panel p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                    <h3 class="text-xl font-semibold text-white mb-6">Intelligence Components</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-violet-900 flex items-center justify-center text-xl">🗣️</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-white">Natural Language DSL</h4>
+                                <p class="text-slate-400 text-sm">Converts "Buy when RSI < 30" into robust code logic via the Strategy Management Service.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-900 flex items-center justify-center text-xl">🛡️</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-white">Risk &amp; Discipline Engine</h4>
+                                <p class="text-slate-400 text-sm">Intercepts every trade. Checks position limits, stop-losses, and SEBI guardrails before execution.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-xl">💡</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-white">Explainability Engine</h4>
+                                <p class="text-slate-400 text-sm">Provides human-readable reasons for AI suggestions, building trust with the trader.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-white">End-to-End Execution Flow</h2>
+                <p class="text-slate-400 mt-2">How a user command travels through the layers to reach the market.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-stretch justify-center gap-2">
+
+                <div class="flex-1 bg-slate-900 border border-blue-900/50 rounded-lg p-4 text-center relative step-arrow">
+                    <div class="text-2xl mb-2">👤</div>
+                    <h4 class="font-bold text-blue-400 text-sm">User Surface</h4>
+                    <p class="text-xs text-slate-500 mt-1">Mobile/Web Input</p>
+                </div>
+
+                <div class="flex-1 bg-slate-900 border border-violet-900/50 rounded-lg p-4 text-center relative step-arrow">
+                    <div class="text-2xl mb-2">🔀</div>
+                    <h4 class="font-bold text-violet-400 text-sm">Intent Router</h4>
+                    <p class="text-xs text-slate-500 mt-1">Classifies Request</p>
+                </div>
+
+                <div class="flex-1 bg-slate-900 border border-orange-900/50 rounded-lg p-4 text-center relative step-arrow">
+                    <div class="text-2xl mb-2">🗓️</div>
+                    <h4 class="font-bold text-orange-400 text-sm">Planner</h4>
+                    <p class="text-xs text-slate-500 mt-1">Strategy Lookup</p>
+                </div>
+
+                <div class="flex-1 bg-slate-900 border border-red-900/50 rounded-lg p-4 text-center relative step-arrow">
+                    <div class="text-2xl mb-2">🛡️</div>
+                    <h4 class="font-bold text-red-400 text-sm">Risk Engine</h4>
+                    <p class="text-xs text-slate-500 mt-1">Compliance Check</p>
+                </div>
+
+                <div class="flex-1 bg-slate-900 border border-emerald-900/50 rounded-lg p-4 text-center hide-last-arrow">
+                    <div class="text-2xl mb-2">🏦</div>
+                    <h4 class="font-bold text-emerald-400 text-sm">Connector</h4>
+                    <p class="text-xs text-slate-500 mt-1">Broker API Exec</p>
+                </div>
+
+            </div>
+        </section>
+
+        <footer class="mt-20 pt-10 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="text-white font-bold mb-2">🔒 Privacy Controls</h3>
+                <p class="text-slate-500 text-sm">User strategies and portfolio data are encrypted. Agent memory is siloed per user.</p>
+            </div>
+            <div>
+                <h3 class="text-white font-bold mb-2">📜 SEBI Guardrails</h3>
+                <p class="text-slate-500 text-sm">Hard-coded compliance rules prevent unauthorized trading behaviors or limit breaches.</p>
+            </div>
+            <div>
+                <h3 class="text-white font-bold mb-2">👁️ Auditability</h3>
+                <p class="text-slate-500 text-sm">Every AI decision, Intent classification, and Execution is logged for full transparency.</p>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- UTILITY: WRAP LABELS (16 char limit) ---
+        function wrapLabel(label) {
+            if (typeof label !== 'string' || label.length <= 16) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= 16) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- COMMON CHART OPTIONS ---
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#94a3b8', font: { family: 'Inter' } }
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#e2e8f0',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#475569',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            } else {
+                                return label;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                // Applied conditionally below
+            }
+        };
+
+        // --- 1. COMPOSITION CHART (DOUGHNUT) ---
+        const ctxComp = document.getElementById('compositionChart').getContext('2d');
+        const rawLabelsComp = ['User Surfaces', 'Agentic Layer', 'Trading Intelligence', 'Connector Layer', 'Platform & Compliance'];
+        new Chart(ctxComp, {
+            type: 'doughnut',
+            data: {
+                labels: rawLabelsComp.map(wrapLabel),
+                datasets: [{
+                    data: [15, 20, 35, 20, 10], // Conceptual Complexity Weight
+                    backgroundColor: [
+                        '#3b82f6', // Blue (User)
+                        '#8b5cf6', // Violet (Agent)
+                        '#f59e0b', // Amber (Brain)
+                        '#10b981', // Emerald (Connect)
+                        '#64748b'  // Slate (Plat)
+                    ],
+                    borderColor: '#0f172a',
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '65%',
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { position: 'right', labels: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // --- 2. AGENT RADAR CHART ---
+        const ctxRadar = document.getElementById('agentRadarChart').getContext('2d');
+        const rawLabelsRadar = ['Intent Recognition', 'Context Retention', 'Voice Processing', 'Planning Depth', 'Execution Speed'];
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: rawLabelsRadar.map(wrapLabel),
+                datasets: [{
+                    label: 'Aagman Capabilities',
+                    data: [95, 83, 75, 92, 97],
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)', // Violet transparent
+                    borderColor: '#8b5cf6',
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#8b5cf6',
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    r: {
+                        angleLines: { color: '#334155' },
+                        grid: { color: '#334155' },
+                        pointLabels: { color: '#cbd5e1', font: { size: 11 } },
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
