@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,24 +6,32 @@
     <title>Aagman | System Architecture</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #e2e8f0; /* Slate 200 */
         }
 
-        /* Palette: 
-           Background: #0f172a (Deep Navy)
-           Card: #1e293b (Slate 800)
-           Primary: #3b82f6 (Blue 500)
-           Accent: #8b5cf6 (Violet 500)
-           Success: #10b981 (Emerald 500)
-           Warning: #f59e0b (Amber 500)
-        */
+        /* Tab Styles */
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-bottom: 2px solid currentColor;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Components Tab Styles */
+        .components-theme {
+            background-color: #F5F5F4; /* Stone 100 */
+            color: #44403C; /* Stone 700 */
+        }
 
         .chart-container {
             position: relative;
@@ -40,6 +47,49 @@
             .chart-container {
                 height: 350px;
             }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #E7E5E4; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #A8A29E; 
+            border-radius: 20px;
+        }
+
+        .layer-card {
+            transition: all 0.3s ease;
+        }
+        .layer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .layer-card.active {
+            border-left-width: 4px;
+        }
+
+        .flow-line {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 2rem;
+            background-color: #D6D3D1; /* Stone 300 */
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        
+        .last-flow-item .flow-line {
+            display: none;
+        }
+
+        /* Composition Tab Styles */
+        .composition-theme {
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
         }
 
         .glass-panel {
@@ -68,183 +118,575 @@
         .hide-last-arrow:last-child .step-arrow::after {
             display: none;
         }
-
     </style>
 </head>
-<body class="antialiased selection:bg-blue-500 selection:text-white pb-20">
+<body class="min-h-screen flex flex-col">
 
-    <header class="relative overflow-hidden bg-slate-900 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-500 mb-4 tracking-tight">
-                Aagman
-            </h1>
-            <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-                Architecture Diagram for Intelligent Trading, Strategy Backtesting, and Automated Execution.
-            </p>
-            <div class="mt-8 flex justify-center gap-4">
-                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-blue-400 font-semibold">
-                    🤖 Agentic Layer
+    <!-- Header with Tabs -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-stone-800 tracking-tight">Aagman Architecture</h1>
+                    <p class="text-sm text-stone-500">Interactive System Documentation</p>
                 </div>
-                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-violet-400 font-semibold">
-                    🧠 Trading Intelligence
-                </div>
-                <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-emerald-400 font-semibold">
-                    🛡️ SEBI Compliance
-                </div>
+                <button id="reset-view-btn" class="hidden md:block px-4 py-2 bg-stone-800 text-stone-50 text-sm font-medium rounded-md hover:bg-stone-700 transition-colors">
+                    Reset View
+                </button>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="flex space-x-6 border-b border-stone-200">
+                <button onclick="switchTab('components')" id="tab-components" class="tab-button active px-4 py-2 text-sm font-semibold text-stone-800 border-b-2 border-stone-800">
+                    Components
+                </button>
+                <button onclick="switchTab('composition')" id="tab-composition" class="tab-button px-4 py-2 text-sm font-semibold text-stone-500 hover:text-stone-800 transition-colors">
+                    Composition
+                </button>
+                <button onclick="switchTab('flow')" id="tab-flow" class="tab-button px-4 py-2 text-sm font-semibold text-stone-500 hover:text-stone-800 transition-colors">
+                    Execution Flow
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
-
-        <section>
-            <div class="mb-8 border-l-4 border-blue-500 pl-4">
-                <h2 class="text-3xl font-bold text-white mb-2">System Composition</h2>
-                <p class="text-slate-400">
-                    Aagman is a layered system designed for modularity. It connects user surfaces to deep financial intelligence, supported by a robust connector layer for real-time market access.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div class="glass-panel p-6 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-semibold text-white mb-2">Architectural Distribution</h3>
-                    <h5 class="text-m text-gray mb-4">by complexity</h3>
-                    <div class="chart-container">
-                        <canvas id="compositionChart"></canvas>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-4 text-center">
-                        <span class="font-bold text-blue-400">Insight:</span> The "Trading Intelligence" layer (Strategy, Risk, Research) constitutes the core logic mass, highlighting the system's focus on analytical depth.
-                    </p>
+    <!-- Components Tab Content -->
+    <div id="content-components" class="tab-content active components-theme flex-grow">
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <section class="lg:col-span-4 flex flex-col space-y-4">
+                <div class="mb-2">
+                    <h2 class="text-lg font-semibold text-stone-700">System Layers</h2>
+                    <p class="text-xs text-stone-500">Click a layer to inspect details</p>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                        <h4 class="font-bold text-white">User Surfaces</h4>
-                        <p class="text-sm text-slate-400">Web, Mobile, Extensions, &amp; SDKs serving as the entry point.</p>
+                <button onclick="selectLayer('surfaces')" id="btn-surfaces" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-sky-300 active border-l-sky-500 group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-stone-700 group-hover:text-sky-600">1. User Surfaces</span>
+                        <span class="text-xl">📱</span>
                     </div>
-                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-violet-500">
-                        <h4 class="font-bold text-white">Agentic Co-Pilot</h4>
-                        <p class="text-sm text-slate-400">Intent routing, planning, and user memory handling multi-modal inputs.</p>
-                    </div>
-                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-orange-500">
-                        <h4 class="font-bold text-white">Trading Intelligence</h4>
-                        <p class="text-sm text-slate-400">The "Brain": DSL conversion, strategy management, risk engines, and explainability.</p>
-                    </div>
-                    <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                        <h4 class="font-bold text-white">Connector Layer</h4>
-                        <p class="text-sm text-slate-400">API/DOM connections to Brokers, Markets, and Portfolio Sync.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    <p class="text-xs text-stone-500 mt-1">Web, Mobile, SDKs, Extensions</p>
+                </button>
 
-        <section>
-            <div class="mb-8 border-l-4 border-violet-500 pl-4">
-                <h2 class="text-3xl font-bold text-white mb-2">The Agentic Brain</h2>
-                <p class="text-slate-400">
-                    This layer translates human intent into executable financial actions. It handles multi-modal input (voice/text) and orchestrates complex trading workflows.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass-panel p-6 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-semibold text-white mb-4">Agent Capabilities Score</h3>
-                    <div class="chart-container">
-                        <canvas id="agentRadarChart"></canvas>
+                <button onclick="selectLayer('agentic')" id="btn-agentic" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-violet-300 border-l-transparent group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-stone-700 group-hover:text-violet-600">2. Agentic Co-Pilot</span>
+                        <span class="text-xl">🤖</span>
                     </div>
-                    <p class="text-sm text-slate-500 mt-4 text-center">
-                        <span class="font-bold text-violet-400">Insight:</span> High "Intent Recognition" and "Context Retention" are critical for accurately interpreting complex user strategies like "Hedge my portfolio if Nifty drops 2%."
-                    </p>
+                    <p class="text-xs text-stone-500 mt-1">Intent, Planning, Memory</p>
+                </button>
+
+                <button onclick="selectLayer('intelligence')" id="btn-intelligence" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-orange-300 border-l-transparent group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-stone-700 group-hover:text-orange-600">3. Trading Intelligence</span>
+                        <span class="text-xl">🧠</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-1">Strategy, Risk, DSL, Research</p>
+                </button>
+
+                <button onclick="selectLayer('connector')" id="btn-connector" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-emerald-300 border-l-transparent group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-stone-700 group-hover:text-emerald-600">4. Connector Layer</span>
+                        <span class="text-xl">🔌</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-1">Brokers, Markets, Sync</p>
+                </button>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectLayer('compliance')" id="btn-compliance" class="layer-card w-full text-left p-4 rounded-lg bg-stone-50 border border-red-200 border-dashed hover:border-red-400 border-l-transparent group">
+                        <div class="flex flex-col">
+                            <span class="text-xl mb-2">🛡️</span>
+                            <span class="font-bold text-stone-700 text-sm group-hover:text-red-600">Compliance</span>
+                        </div>
+                    </button>
+
+                    <button onclick="selectLayer('platform')" id="btn-platform" class="layer-card w-full text-left p-4 rounded-lg bg-stone-50 border border-slate-200 border-dashed hover:border-slate-400 border-l-transparent group">
+                        <div class="flex flex-col">
+                            <span class="text-xl mb-2">🏗️</span>
+                            <span class="font-bold text-stone-700 text-sm group-hover:text-slate-600">Platform</span>
+                        </div>
+                    </button>
                 </div>
                 
-                <div class="glass-panel p-6 rounded-xl shadow-lg flex flex-col justify-center">
-                    <h3 class="text-xl font-semibold text-white mb-6">Intelligence Components</h3>
-                    <div class="space-y-6">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-violet-900 flex items-center justify-center text-xl">🗣️</div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-medium text-white">Natural Language DSL</h4>
-                                <p class="text-slate-400 text-sm">Converts "Buy when RSI < 30" into robust code logic via the Strategy Management Service.</p>
-                            </div>
+                <div class="mt-8 p-4 bg-orange-50 border border-orange-100 rounded-lg">
+                    <h4 class="text-xs font-bold text-orange-800 uppercase mb-1">Architecture Note</h4>
+                    <p class="text-xs text-orange-700">The structure is hierarchical. User intent flows down from Surfaces to Connectors, guarded by Compliance at every critical step.</p>
+                </div>
+            </section>
+
+            <section class="lg:col-span-8 bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
+                
+                <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                    <div class="flex items-center space-x-3">
+                        <span id="detail-icon" class="text-3xl">📱</span>
+                        <div>
+                            <h2 id="detail-title" class="text-2xl font-bold text-stone-800">User Surfaces</h2>
+                            <p id="detail-desc" class="text-stone-500 mt-1">The entry point for all interactions. Standardizes input across Web, Mobile, and API channels before passing it to the Agentic layer.</p>
                         </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-900 flex items-center justify-center text-xl">🛡️</div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-medium text-white">Risk &amp; Discipline Engine</h4>
-                                <p class="text-slate-400 text-sm">Intercepts every trade. Checks position limits, stop-losses, and SEBI guardrails before execution.</p>
-                            </div>
+                    </div>
+                </div>
+
+                <div class="p-6 custom-scroll overflow-y-auto flex-grow">
+                    
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-stone-400 uppercase tracking-wide mb-4">Core Components</h3>
+                        <div id="component-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated by JS -->
                         </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-xl">💡</div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-medium text-white">Explainability Engine</h4>
-                                <p class="text-slate-400 text-sm">Provides human-readable reasons for AI suggestions, building trust with the trader.</p>
+                    </div>
+
+                    <div class="bg-stone-50 rounded-lg p-6 border border-stone-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-stone-600 uppercase tracking-wide">Live System Metrics (Simulated)</h3>
+                            <span id="viz-badge" class="px-2 py-1 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">Traffic Analysis</span>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="layerChart"></canvas>
+                        </div>
+                        <p id="chart-context" class="text-xs text-center text-stone-400 mt-4 italic">
+                            Real-time active session distribution across user touchpoints.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Composition Tab Content -->
+    <div id="content-composition" class="tab-content composition-theme pb-20">
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+            <section>
+                <div class="mb-8 border-l-4 border-blue-500 pl-4">
+                    <h2 class="text-3xl font-bold text-white mb-2">System Composition</h2>
+                    <p class="text-slate-400">
+                        Aagman is a layered system designed for modularity. It connects user surfaces to deep financial intelligence, supported by a robust connector layer for real-time market access.
+                    </p>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                    <div class="flex justify-center gap-4 flex-wrap">
+                        <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-blue-400 font-semibold">
+                            🤖 Agentic Layer
+                        </div>
+                        <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-violet-400 font-semibold">
+                            🧠 Trading Intelligence
+                        </div>
+                        <div class="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm text-emerald-400 font-semibold">
+                            🛡️ SEBI Compliance
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="glass-panel p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-white mb-2">Architectural Distribution</h3>
+                        <h5 class="text-sm text-slate-400 mb-4">by complexity</h5>
+                        <div class="chart-container">
+                            <canvas id="compositionChart"></canvas>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-4 text-center">
+                            <span class="font-bold text-blue-400">Insight:</span> The "Trading Intelligence" layer (Strategy, Risk, Research) constitutes the core logic mass, highlighting the system's focus on analytical depth.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-white">User Surfaces</h4>
+                            <p class="text-sm text-slate-400">Web, Mobile, Extensions, &amp; SDKs serving as the entry point.</p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-violet-500">
+                            <h4 class="font-bold text-white">Agentic Co-Pilot</h4>
+                            <p class="text-sm text-slate-400">Intent routing, planning, and user memory handling multi-modal inputs.</p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-orange-500">
+                            <h4 class="font-bold text-white">Trading Intelligence</h4>
+                            <p class="text-sm text-slate-400">The "Brain": DSL conversion, strategy management, risk engines, and explainability.</p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
+                            <h4 class="font-bold text-white">Connector Layer</h4>
+                            <p class="text-sm text-slate-400">API/DOM connections to Brokers, Markets, and Portfolio Sync.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="mb-8 border-l-4 border-violet-500 pl-4">
+                    <h2 class="text-3xl font-bold text-white mb-2">The Agentic Brain</h2>
+                    <p class="text-slate-400">
+                        This layer translates human intent into executable financial actions. It handles multi-modal input (voice/text) and orchestrates complex trading workflows.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-panel p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-white mb-4">Agent Capabilities Score</h3>
+                        <div class="chart-container">
+                            <canvas id="agentRadarChart"></canvas>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-4 text-center">
+                            <span class="font-bold text-violet-400">Insight:</span> High "Intent Recognition" and "Context Retention" are critical for accurately interpreting complex user strategies like "Hedge my portfolio if Nifty drops 2%."
+                        </p>
+                    </div>
+                    
+                    <div class="glass-panel p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                        <h3 class="text-xl font-semibold text-white mb-6">Intelligence Components</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-violet-900 flex items-center justify-center text-xl">🗣️</div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium text-white">Natural Language DSL</h4>
+                                    <p class="text-slate-400 text-sm">Converts "Buy when RSI < 30" into robust code logic via the Strategy Management Service.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-900 flex items-center justify-center text-xl">🛡️</div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium text-white">Risk &amp; Discipline Engine</h4>
+                                    <p class="text-slate-400 text-sm">Intercepts every trade. Checks position limits, stop-losses, and SEBI guardrails before execution.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-xl">💡</div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium text-white">Explainability Engine</h4>
+                                    <p class="text-slate-400 text-sm">Provides human-readable reasons for AI suggestions, building trust with the trader.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-bold text-white">End-to-End Execution Flow</h2>
-                <p class="text-slate-400 mt-2">How a user command travels through the layers to reach the market.</p>
-            </div>
-
-            <div class="flex flex-col md:flex-row items-stretch justify-center gap-2">
-
-                <div class="flex-1 bg-slate-900 border border-blue-900/50 rounded-lg p-4 text-center relative step-arrow">
-                    <div class="text-2xl mb-2">👤</div>
-                    <h4 class="font-bold text-blue-400 text-sm">User Surface</h4>
-                    <p class="text-xs text-slate-500 mt-1">Mobile/Web Input</p>
+            <footer class="mt-20 pt-10 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                <div>
+                    <h3 class="text-white font-bold mb-2">🔒 Privacy Controls</h3>
+                    <p class="text-slate-500 text-sm">User strategies and portfolio data are encrypted. Agent memory is siloed per user.</p>
                 </div>
-
-                <div class="flex-1 bg-slate-900 border border-violet-900/50 rounded-lg p-4 text-center relative step-arrow">
-                    <div class="text-2xl mb-2">🔀</div>
-                    <h4 class="font-bold text-violet-400 text-sm">Intent Router</h4>
-                    <p class="text-xs text-slate-500 mt-1">Classifies Request</p>
+                <div>
+                    <h3 class="text-white font-bold mb-2">📜 SEBI Guardrails</h3>
+                    <p class="text-slate-500 text-sm">Hard-coded compliance rules prevent unauthorized trading behaviors or limit breaches.</p>
                 </div>
-
-                <div class="flex-1 bg-slate-900 border border-orange-900/50 rounded-lg p-4 text-center relative step-arrow">
-                    <div class="text-2xl mb-2">🗓️</div>
-                    <h4 class="font-bold text-orange-400 text-sm">Planner</h4>
-                    <p class="text-xs text-slate-500 mt-1">Strategy Lookup</p>
+                <div>
+                    <h3 class="text-white font-bold mb-2">👁️ Auditability</h3>
+                    <p class="text-slate-500 text-sm">Every AI decision, Intent classification, and Execution is logged for full transparency.</p>
                 </div>
+            </footer>
 
-                <div class="flex-1 bg-slate-900 border border-red-900/50 rounded-lg p-4 text-center relative step-arrow">
-                    <div class="text-2xl mb-2">🛡️</div>
-                    <h4 class="font-bold text-red-400 text-sm">Risk Engine</h4>
-                    <p class="text-xs text-slate-500 mt-1">Compliance Check</p>
-                </div>
+        </main>
+    </div>
 
-                <div class="flex-1 bg-slate-900 border border-emerald-900/50 rounded-lg p-4 text-center hide-last-arrow">
-                    <div class="text-2xl mb-2">🏦</div>
-                    <h4 class="font-bold text-emerald-400 text-sm">Connector</h4>
-                    <p class="text-xs text-slate-500 mt-1">Broker API Exec</p>
-                </div>
+    <!-- Flow Tab Content -->
+    <div id="content-flow" class="tab-content composition-theme pb-20">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
 
-            </div>
-        </section>
+          <section class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+              <div class="text-center mb-10">
+                  <h2 class="text-3xl font-bold text-white">End-to-End Execution Flow</h2>
+                  <p class="text-slate-400 mt-2">How a user command travels through the layers to reach the market.</p>
+              </div>
 
-        <footer class="mt-20 pt-10 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-            <div>
-                <h3 class="text-white font-bold mb-2">🔒 Privacy Controls</h3>
-                <p class="text-slate-500 text-sm">User strategies and portfolio data are encrypted. Agent memory is siloed per user.</p>
-            </div>
-            <div>
-                <h3 class="text-white font-bold mb-2">📜 SEBI Guardrails</h3>
-                <p class="text-slate-500 text-sm">Hard-coded compliance rules prevent unauthorized trading behaviors or limit breaches.</p>
-            </div>
-            <div>
-                <h3 class="text-white font-bold mb-2">👁️ Auditability</h3>
-                <p class="text-slate-500 text-sm">Every AI decision, Intent classification, and Execution is logged for full transparency.</p>
-            </div>
-        </footer>
+              <div class="flex flex-col md:flex-row items-stretch justify-center gap-2">
+                  <div class="flex-1 bg-slate-900 border border-blue-900/50 rounded-lg p-4 text-center relative step-arrow">
+                      <div class="text-2xl mb-2">👤</div>
+                      <h4 class="font-bold text-blue-400 text-sm">User Surface</h4>
+                      <p class="text-xs text-slate-500 mt-1">Mobile/Web Input</p>
+                  </div>
 
-    </main>
+                  <div class="flex-1 bg-slate-900 border border-violet-900/50 rounded-lg p-4 text-center relative step-arrow">
+                      <div class="text-2xl mb-2">🔀</div>
+                      <h4 class="font-bold text-violet-400 text-sm">Intent Router</h4>
+                      <p class="text-xs text-slate-500 mt-1">Classifies Request</p>
+                  </div>
 
+                  <div class="flex-1 bg-slate-900 border border-orange-900/50 rounded-lg p-4 text-center relative step-arrow">
+                      <div class="text-2xl mb-2">🗓️</div>
+                      <h4 class="font-bold text-orange-400 text-sm">Planner</h4>
+                      <p class="text-xs text-slate-500 mt-1">Strategy Lookup</p>
+                  </div>
+
+                  <div class="flex-1 bg-slate-900 border border-red-900/50 rounded-lg p-4 text-center relative step-arrow">
+                      <div class="text-2xl mb-2">🛡️</div>
+                      <h4 class="font-bold text-red-400 text-sm">Risk Engine</h4>
+                      <p class="text-xs text-slate-500 mt-1">Compliance Check</p>
+                  </div>
+
+                  <div class="flex-1 bg-slate-900 border border-emerald-900/50 rounded-lg p-4 text-center hide-last-arrow">
+                      <div class="text-2xl mb-2">🏦</div>
+                      <h4 class="font-bold text-emerald-400 text-sm">Connector</h4>
+                      <p class="text-xs text-slate-500 mt-1">Broker API Exec</p>
+                  </div>
+              </div>
+          </section>
+
+          <!-- Interactive Flow Section -->
+          <section class="bg-stone-800 text-stone-100 py-12">
+              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div class="mb-8 text-center">
+                      <h2 class="text-2xl font-bold mb-2">System in Action: Trade Execution Flow</h2>
+                      <p class="text-stone-400 text-sm max-w-2xl mx-auto">Click the steps below to trace how a user command "Buy 100 shares of INFY" travels through the architecture.</p>
+                  </div>
+  
+                  <div class="max-w-4xl mx-auto">
+                      <div class="flex flex-col md:flex-row justify-between items-start md:items-center relative gap-8 md:gap-4">
+                          
+                          <!-- Connector Line (Desktop) -->
+                          <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-stone-700 -z-0 transform -translate-y-1/2"></div>
+  
+                          <!-- Step 1 -->
+                          <button onclick="updateFlow(1)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                              <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-sky-500 group-hover:text-white" id="step-1-circle">
+                                  🗣️
+                              </div>
+                              <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-sky-300 transition-colors">1. Input</span>
+                              <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Voice/Text captured</div>
+                          </button>
+  
+                          <!-- Step 2 -->
+                          <button onclick="updateFlow(2)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                              <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-violet-500 group-hover:text-white" id="step-2-circle">
+                                  🤖
+                              </div>
+                              <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-violet-300 transition-colors">2. Intent</span>
+                              <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Router & Planner</div>
+                          </button>
+  
+                          <!-- Step 3 -->
+                          <button onclick="updateFlow(3)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                              <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-orange-500 group-hover:text-white" id="step-3-circle">
+                                  🧠
+                              </div>
+                              <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-orange-300 transition-colors">3. Strategy</span>
+                              <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">DSL Conversion</div>
+                          </button>
+  
+                          <!-- Step 4 -->
+                          <button onclick="updateFlow(4)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                              <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-red-500 group-hover:text-white" id="step-4-circle">
+                                  🛡️
+                              </div>
+                              <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-red-300 transition-colors">4. Risk</span>
+                              <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Guardrails Check</div>
+                          </button>
+  
+                          <!-- Step 5 -->
+                          <button onclick="updateFlow(5)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                              <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-emerald-500 group-hover:text-white" id="step-5-circle">
+                                  🚀
+                              </div>
+                              <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-emerald-300 transition-colors">5. Exec</span>
+                              <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Broker API</div>
+                          </button>
+  
+                      </div>
+  
+                      <!-- Dynamic Flow Description -->
+                      <div id="flow-description" class="mt-10 p-6 bg-stone-900 rounded-lg border border-stone-700 text-center min-h-[120px] flex flex-col justify-center items-center transition-all duration-500 opacity-100">
+                          <h3 class="text-lg font-bold text-white mb-2">Select a step to analyze the flow</h3>
+                          <p class="text-stone-400">The journey of a trade begins at the user surface and ends at the market.</p>
+                      </div>
+                  </div>
+              </div>
+          </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 border-t border-stone-800 text-stone-500 py-8 text-center text-xs">
+        <p>&copy; 2025 Koti Labs Private Limited</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
     <script>
+        // --- TAB MANAGEMENT ---
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active', 'border-b-2', 'border-stone-800', 'text-stone-800');
+                btn.classList.add('text-stone-500');
+            });
+
+            // Show selected tab
+            const selectedTab = document.getElementById(`content-${tabName}`);
+            const selectedBtn = document.getElementById(`tab-${tabName}`);
+            selectedTab.classList.add('active');
+            selectedBtn.classList.add('active', 'border-b-2', 'border-stone-800', 'text-stone-800');
+            selectedBtn.classList.remove('text-stone-500');
+
+            // Initialize charts for composition tab if needed
+            if (tabName === 'composition' && !compositionChartsInitialized) {
+                initCompositionCharts();
+                compositionChartsInitialized = true;
+            }
+        }
+
+        // --- COMPONENTS TAB: DATA STORE ---
+        const layers = {
+            surfaces: {
+                title: "User Surfaces",
+                icon: "📱",
+                desc: "The entry point for all interactions. Whether voice via mobile, text via web, or programmatic access via SDKs, this layer normalizes input.",
+                color: "sky",
+                components: [
+                    { title: "Web Application", desc: "React-based dashboard for complex analysis." },
+                    { title: "Mobile Apps", desc: "Native iOS/Android with voice-first capabilities." },
+                    { title: "Browser Extensions", desc: "Contextual overlay for quick actions." },
+                    { title: "Broker SDKs", desc: "Integration libraries for partner platforms." }
+                ],
+                chartConfig: {
+                    type: 'doughnut',
+                    label: 'Active Sessions',
+                    labels: ['Mobile App', 'Web Dashboard', 'API/SDK', 'Browser Ext'],
+                    data: [45, 30, 15, 10],
+                    colors: ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'],
+                    context: "Traffic distribution shows high mobile engagement for execution, web for research."
+                }
+            },
+            agentic: {
+                title: "Agentic Co-Pilot Layer",
+                icon: "🤖",
+                desc: "The interface logic layer. It parses raw input into structured intent, plans execution steps, and maintains user context memory.",
+                color: "violet",
+                components: [
+                    { title: "Intent Router", desc: "Classifies input: 'Trade', 'Screen', 'Analyze'." },
+                    { title: "Planner & Orchestrator", desc: "Breaks goals into sequential tasks." },
+                    { title: "User Memory", desc: "Stores past trades, preferences, and context." },
+                    { title: "Multi-modal Input", desc: "Processes Voice-to-Text and Image inputs." }
+                ],
+                chartConfig: {
+                    type: 'bar',
+                    label: 'Intent Classification Confidence',
+                    labels: ['Buy Order', 'Sell Order', 'Portfolio Check', 'Market News', 'Strategy Build'],
+                    data: [98, 97, 99, 92, 85],
+                    colors: ['#8b5cf6', '#8b5cf6', '#8b5cf6', '#a78bfa', '#c4b5fd'],
+                    context: "High confidence in transactional intents; 'Strategy Build' requires more conversational turns."
+                }
+            },
+            intelligence: {
+                title: "Trading Intelligence",
+                icon: "🧠",
+                desc: "The core brain. Contains the Strategy Management Service, the No-Code DSL engine, and the Explainability Engine.",
+                color: "orange",
+                components: [
+                    { title: "Strategy Mgmt", desc: "Lifecycle management of trading algos." },
+                    { title: "DSL Engine", desc: "Natural Language -> Executable Code." },
+                    { title: "Explainability", desc: "Generates plain-text rationale for decisions." },
+                    { title: "Risk & Discipline", desc: "Pre-trade checks and guardrails." },
+                    { title: "Order Execution", desc: "Smart routing logic." }
+                ],
+                chartConfig: {
+                    type: 'line',
+                    label: 'Strategy Success Rate (%)',
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    data: [65, 68, 72, 70, 75, 78],
+                    colors: ['#f97316'],
+                    context: "Consistent improvement in strategy performance due to AI model fine-tuning."
+                }
+            },
+            connector: {
+                title: "Connector Layer",
+                icon: "🔌",
+                desc: "The 'Hands' of the system. Handles the last mile connectivity to brokers, markets, and legacy systems.",
+                color: "emerald",
+                components: [
+                    { title: "Broker APIs", desc: "Standard REST/WebSocket integration." },
+                    { title: "DOM Automation", desc: "Legacy fallback for non-API platforms." },
+                    { title: "Market Data Feeds", desc: "Real-time tick data ingestion." },
+                    { title: "Portfolio Sync", desc: "Reconciliation of holdings." }
+                ],
+                chartConfig: {
+                    type: 'line',
+                    label: 'Data Feed Latency (ms)',
+                    labels: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
+                    data: [45, 120, 80, 60, 65, 90, 150],
+                    colors: ['#10b981'],
+                    context: "Latency spikes observed during market open (09:15) and close (15:30)."
+                }
+            },
+            compliance: {
+                title: "Compliance Layer",
+                icon: "🛡️",
+                desc: "Cross-cutting layer ensuring safety. Wraps around Intelligence and Connector layers to enforce SEBI rules and Privacy.",
+                color: "red",
+                components: [
+                    { title: "SEBI Guardrails", desc: "Hard blocks for non-compliant trades." },
+                    { title: "Privacy Controls", desc: "PII redaction and data masking." },
+                    { title: "Audit Logs", desc: "Immutable record of all AI actions." }
+                ],
+                chartConfig: {
+                    type: 'doughnut',
+                    label: 'Risk Checks',
+                    labels: ['Passed', 'Blocked (Margin)', 'Blocked (Risk)', 'Blocked (Compliance)'],
+                    data: [85, 8, 5, 2],
+                    colors: ['#22c55e', '#facc15', '#f97316', '#ef4444'],
+                    context: "Majority of trades pass, with Margin limits being the most common blocker."
+                }
+            },
+            platform: {
+                title: "Platform Layer",
+                icon: "🏗️",
+                desc: "The foundation providing reliability, observability, and experimentation capabilities for the entire stack.",
+                color: "slate",
+                components: [
+                    { title: "Observability", desc: "Distributed tracing and logging." },
+                    { title: "Rate Limits", desc: "API throttling and fairness." },
+                    { title: "Cost Attribution", desc: "Token usage tracking per user." },
+                    { title: "Eval Harness", desc: "A/B testing for model versions." }
+                ],
+                chartConfig: {
+                    type: 'bar',
+                    label: 'API Costs (Tokens)',
+                    labels: ['Strategy Gen', 'Market Query', 'Portfolio Sync', 'Chat'],
+                    data: [5000, 2000, 1500, 3000],
+                    colors: ['#64748b', '#94a3b8', '#cbd5e1', '#475569'],
+                    context: "Strategy Generation is the most compute-intensive operation."
+                }
+            }
+        };
+
+        const flowSteps = {
+            1: {
+                title: "Input Processing",
+                desc: "User says 'Buy 100 shares of INFY'. The <strong>User Surface</strong> captures this audio, converts it to text, and sends raw data to the Agentic Layer.",
+                color: "bg-sky-500"
+            },
+            2: {
+                title: "Intent Recognition",
+                desc: "The <strong>Intent Router</strong> identifies the goal as 'Execute Trade'. The <strong>Planner</strong> checks User Memory for preferences (e.g., 'Always use limit orders').",
+                color: "bg-violet-500"
+            },
+            3: {
+                title: "Strategy & Logic",
+                desc: "The <strong>Trading Intelligence</strong> layer validates the ticker. If it was a complex request ('Buy if RSI < 30'), the <strong>DSL Engine</strong> would convert logic to code.",
+                color: "bg-orange-500"
+            },
+            4: {
+                title: "Risk Guardrails",
+                desc: "CRITICAL STEP: The <strong>Risk Engine</strong> intercepts the order. It checks: Is there enough margin? Does this violate SEBI rules? Is the position size safe?",
+                color: "bg-red-500"
+            },
+            5: {
+                title: "Execution",
+                desc: "Passed! The <strong>Connector Layer</strong> formats the API request and sends it to the specific Broker. Order ID is returned and synced.",
+                color: "bg-emerald-500"
+            }
+        };
+
+        // --- CHART INSTANCES ---
+        let currentChart = null;
+        let compositionChartInstance = null;
+        let agentRadarChartInstance = null;
+        let compositionChartsInitialized = false;
+
         // --- UTILITY: WRAP LABELS (16 char limit) ---
         function wrapLabel(label) {
             if (typeof label !== 'string' || label.length <= 16) return label;
@@ -264,21 +706,19 @@
             return lines;
         }
 
-        // --- COMMON CHART OPTIONS ---
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: { color: '#94a3b8', font: { family: 'Inter' } }
-                },
+        // --- COMPONENTS TAB: CHART FUNCTIONS ---
+        function initChart(config) {
+            const canvas = document.getElementById('layerChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const tooltipPlugin = {
                 tooltip: {
-                    backgroundColor: '#1e293b',
-                    titleColor: '#e2e8f0',
-                    bodyColor: '#cbd5e1',
-                    borderColor: '#475569',
-                    borderWidth: 1,
-                    padding: 12,
                     callbacks: {
                         title: function(tooltipItems) {
                             const item = tooltipItems[0];
@@ -291,71 +731,233 @@
                         }
                     }
                 }
-            },
-            scales: {
-                // Applied conditionally below
-            }
-        };
+            };
 
-        // --- 1. COMPOSITION CHART (DOUGHNUT) ---
-        const ctxComp = document.getElementById('compositionChart').getContext('2d');
-        const rawLabelsComp = ['User Surfaces', 'Agentic Layer', 'Trading Intelligence', 'Connector Layer', 'Platform & Compliance'];
-        new Chart(ctxComp, {
-            type: 'doughnut',
-            data: {
-                labels: rawLabelsComp.map(wrapLabel),
-                datasets: [{
-                    data: [15, 20, 35, 20, 10], // Conceptual Complexity Weight
-                    backgroundColor: [
-                        '#3b82f6', // Blue (User)
-                        '#8b5cf6', // Violet (Agent)
-                        '#f59e0b', // Amber (Brain)
-                        '#10b981', // Emerald (Connect)
-                        '#64748b'  // Slate (Plat)
-                    ],
-                    borderColor: '#0f172a',
-                    borderWidth: 4
-                }]
-            },
-            options: {
-                ...commonOptions,
-                cutout: '65%',
-                plugins: {
-                    ...commonOptions.plugins,
-                    legend: { position: 'right', labels: { color: '#94a3b8' } }
+            currentChart = new Chart(ctx, {
+                type: config.type,
+                data: {
+                    labels: config.labels.map(l => wrapLabel(l)),
+                    datasets: [{
+                        label: config.label,
+                        data: config.data,
+                        backgroundColor: config.colors,
+                        borderColor: config.colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        ...tooltipPlugin,
+                        legend: {
+                            display: config.type !== 'bar' && config.type !== 'line',
+                            position: 'bottom'
+                        }
+                    },
+                    scales: (config.type === 'bar' || config.type === 'line') ? {
+                        y: { beginAtZero: true }
+                    } : {}
                 }
-            }
-        });
+            });
+        }
 
-        // --- 2. AGENT RADAR CHART ---
-        const ctxRadar = document.getElementById('agentRadarChart').getContext('2d');
-        const rawLabelsRadar = ['Intent Recognition', 'Context Retention', 'Voice Processing', 'Planning Depth', 'Execution Speed'];
-        new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: rawLabelsRadar.map(wrapLabel),
-                datasets: [{
-                    label: 'Aagman Capabilities',
-                    data: [95, 83, 75, 92, 97],
-                    backgroundColor: 'rgba(139, 92, 246, 0.2)', // Violet transparent
-                    borderColor: '#8b5cf6',
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#8b5cf6',
-                }]
-            },
-            options: {
-                ...commonOptions,
-                scales: {
-                    r: {
-                        angleLines: { color: '#334155' },
-                        grid: { color: '#334155' },
-                        pointLabels: { color: '#cbd5e1', font: { size: 11 } },
-                        ticks: { display: false }
+        function selectLayer(layerId) {
+            const data = layers[layerId];
+            
+            // 1. Visual Selection Logic
+            document.querySelectorAll('.layer-card').forEach(card => {
+                card.classList.remove('active', 'border-l-4');
+                card.style.borderLeftColor = 'transparent';
+            });
+            
+            const activeBtn = document.getElementById(`btn-${layerId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                
+                const colorMap = {
+                    sky: '#0ea5e9', violet: '#8b5cf6', orange: '#f97316', 
+                    emerald: '#10b981', red: '#ef4444', slate: '#64748b'
+                };
+                activeBtn.style.borderLeftColor = colorMap[data.color];
+            }
+
+            // 2. Update Text Content
+            const detailIcon = document.getElementById('detail-icon');
+            const detailTitle = document.getElementById('detail-title');
+            const detailDesc = document.getElementById('detail-desc');
+            const chartContext = document.getElementById('chart-context');
+            const vizBadge = document.getElementById('viz-badge');
+            
+            if (detailIcon) detailIcon.textContent = data.icon;
+            if (detailTitle) detailTitle.textContent = data.title;
+            if (detailDesc) detailDesc.textContent = data.desc;
+            if (chartContext) chartContext.textContent = data.chartConfig.context;
+            if (vizBadge) {
+                vizBadge.textContent = data.chartConfig.label;
+                vizBadge.className = `px-2 py-1 text-xs font-medium rounded-full bg-${data.color}-100 text-${data.color}-700`;
+            }
+            
+            // 3. Update Component Grid
+            const grid = document.getElementById('component-grid');
+            if (grid) {
+                grid.innerHTML = '';
+                data.components.forEach(comp => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded border border-stone-200 shadow-sm hover:shadow-md transition-shadow";
+                    card.innerHTML = `
+                        <h4 class="font-bold text-stone-700 text-sm mb-1">${comp.title}</h4>
+                        <p class="text-xs text-stone-500">${comp.desc}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // 4. Update Chart
+            initChart(data.chartConfig);
+        }
+
+        function updateFlow(step) {
+            const data = flowSteps[step];
+            const contentDiv = document.getElementById('flow-description');
+            if (!contentDiv) return;
+            
+            // Reset Styles
+            document.querySelectorAll('[id^="step-"]').forEach(el => {
+                el.classList.remove('scale-110', 'ring-4', 'ring-white');
+            });
+
+            // Highlight Circle
+            const circle = document.getElementById(`step-${step}-circle`);
+            if (circle) {
+                circle.classList.add('scale-110', 'ring-4', 'ring-white');
+            }
+
+            // Animate Content Swap
+            contentDiv.style.opacity = '0';
+            setTimeout(() => {
+                contentDiv.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full ${data.color}"></span>
+                        Step ${step}: ${data.title}
+                    </h3>
+                    <p class="text-stone-300 max-w-xl mx-auto">${data.desc}</p>
+                `;
+                contentDiv.style.opacity = '1';
+            }, 300);
+        }
+
+        // --- COMPOSITION TAB: CHART FUNCTIONS ---
+        function initCompositionCharts() {
+            // Common chart options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { family: 'Inter' } }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#cbd5e1',
+                        borderColor: '#475569',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
                     }
                 }
+            };
+
+            // Composition Chart (Doughnut)
+            const ctxComp = document.getElementById('compositionChart');
+            if (ctxComp && !compositionChartInstance) {
+                const rawLabelsComp = ['User Surfaces', 'Agentic Layer', 'Trading Intelligence', 'Connector Layer', 'Platform & Compliance'];
+                compositionChartInstance = new Chart(ctxComp.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: rawLabelsComp.map(wrapLabel),
+                        datasets: [{
+                            data: [15, 20, 35, 20, 10],
+                            backgroundColor: [
+                                '#3b82f6', // Blue (User)
+                                '#8b5cf6', // Violet (Agent)
+                                '#f59e0b', // Amber (Brain)
+                                '#10b981', // Emerald (Connect)
+                                '#64748b'  // Slate (Plat)
+                            ],
+                            borderColor: '#0f172a',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        cutout: '65%',
+                        plugins: {
+                            ...commonOptions.plugins,
+                            legend: { position: 'right', labels: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+            }
+
+            // Agent Radar Chart
+            const ctxRadar = document.getElementById('agentRadarChart');
+            if (ctxRadar && !agentRadarChartInstance) {
+                const rawLabelsRadar = ['Intent Recognition', 'Context Retention', 'Voice Processing', 'Planning Depth', 'Execution Speed'];
+                agentRadarChartInstance = new Chart(ctxRadar.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: rawLabelsRadar.map(wrapLabel),
+                        datasets: [{
+                            label: 'Aagman Capabilities',
+                            data: [95, 83, 75, 92, 97],
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            borderColor: '#8b5cf6',
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#8b5cf6',
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            r: {
+                                angleLines: { color: '#334155' },
+                                grid: { color: '#334155' },
+                                pointLabels: { color: '#cbd5e1', font: { size: 11 } },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize components tab
+            selectLayer('surfaces');
+            
+            // Setup reset button
+            const resetBtn = document.getElementById('reset-view-btn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    selectLayer('surfaces');
+                });
             }
         });
 
     </script>
 </body>
 </html>
+
