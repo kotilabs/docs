@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aagman System Components</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F4; /* Stone 100 - Warm Neutral */
+            color: #44403C; /* Stone 700 */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #E7E5E4; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #A8A29E; 
+            border-radius: 20px;
+        }
+
+        .layer-card {
+            transition: all 0.3s ease;
+        }
+        .layer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .layer-card.active {
+            border-left-width: 4px;
+        }
+
+        .flow-line {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 2rem;
+            background-color: #D6D3D1; /* Stone 300 */
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        
+        .last-flow-item .flow-line {
+            display: none;
+        }
+
+    </style>
+</head>
+<body class="bg-stone-100 min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-stone-800 tracking-tight">Aagman Architecture</h1>
+                <p class="text-sm text-stone-500">Interactive System Breakdown</p>
+            </div>
+            <button id="reset-view-btn" class="hidden md:block px-4 py-2 bg-stone-800 text-stone-50 text-sm font-medium rounded-md hover:bg-stone-700 transition-colors">
+                Reset View
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <section class="lg:col-span-4 flex flex-col space-y-4">
+            <div class="mb-2">
+                <h2 class="text-lg font-semibold text-stone-700">System Layers</h2>
+                <p class="text-xs text-stone-500">Click a layer to inspect details</p>
+            </div>
+
+            <button onclick="selectLayer('surfaces')" id="btn-surfaces" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-sky-300 active border-l-sky-500 group">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-stone-700 group-hover:text-sky-600">1. User Surfaces</span>
+                    <span class="text-xl">📱</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Web, Mobile, SDKs, Extensions</p>
+            </button>
+
+            <button onclick="selectLayer('agentic')" id="btn-agentic" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-violet-300 border-l-transparent group">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-stone-700 group-hover:text-violet-600">2. Agentic Co-Pilot</span>
+                    <span class="text-xl">🤖</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Intent, Planning, Memory</p>
+            </button>
+
+            <button onclick="selectLayer('intelligence')" id="btn-intelligence" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-orange-300 border-l-transparent group">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-stone-700 group-hover:text-orange-600">3. Trading Intelligence</span>
+                    <span class="text-xl">🧠</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Strategy, Risk, DSL, Research</p>
+            </button>
+
+            <button onclick="selectLayer('connector')" id="btn-connector" class="layer-card w-full text-left p-4 rounded-lg bg-white border border-stone-200 shadow-sm hover:border-emerald-300 border-l-transparent group">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-stone-700 group-hover:text-emerald-600">4. Connector Layer</span>
+                    <span class="text-xl">🔌</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Brokers, Markets, Sync</p>
+            </button>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectLayer('compliance')" id="btn-compliance" class="layer-card w-full text-left p-4 rounded-lg bg-stone-50 border border-red-200 border-dashed hover:border-red-400 border-l-transparent group">
+                    <div class="flex flex-col">
+                        <span class="text-xl mb-2">🛡️</span>
+                        <span class="font-bold text-stone-700 text-sm group-hover:text-red-600">Compliance</span>
+                    </div>
+                </button>
+
+                <button onclick="selectLayer('platform')" id="btn-platform" class="layer-card w-full text-left p-4 rounded-lg bg-stone-50 border border-slate-200 border-dashed hover:border-slate-400 border-l-transparent group">
+                    <div class="flex flex-col">
+                        <span class="text-xl mb-2">🏗️</span>
+                        <span class="font-bold text-stone-700 text-sm group-hover:text-slate-600">Platform</span>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="mt-8 p-4 bg-orange-50 border border-orange-100 rounded-lg">
+                <h4 class="text-xs font-bold text-orange-800 uppercase mb-1">Architecture Note</h4>
+                <p class="text-xs text-orange-700">The structure is hierarchical. User intent flows down from Surfaces to Connectors, guarded by Compliance at every critical step.</p>
+            </div>
+        </section>
+
+        <section class="lg:col-span-8 bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
+            
+            <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                <div class="flex items-center space-x-3">
+                    <span id="detail-icon" class="text-3xl">📱</span>
+                    <div>
+                        <h2 id="detail-title" class="text-2xl font-bold text-stone-800">User Surfaces</h2>
+                        <p id="detail-desc" class="text-stone-500 mt-1">The entry point for all interactions. Standardizes input across Web, Mobile, and API channels before passing it to the Agentic layer.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 custom-scroll overflow-y-auto flex-grow">
+                
+                <div class="mb-8">
+                    <h3 class="text-sm font-bold text-stone-400 uppercase tracking-wide mb-4">Core Components</h3>
+                    <div id="component-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="bg-stone-50 rounded-lg p-6 border border-stone-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-stone-600 uppercase tracking-wide">Live System Metrics (Simulated)</h3>
+                        <span id="viz-badge" class="px-2 py-1 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">Traffic Analysis</span>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="layerChart"></canvas>
+                    </div>
+                    <p id="chart-context" class="text-xs text-center text-stone-400 mt-4 italic">
+                        Real-time active session distribution across user touchpoints.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Flow Section -->
+    <section class="bg-stone-800 text-stone-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold mb-2">System in Action: Trade Execution Flow</h2>
+                <p class="text-stone-400 text-sm max-w-2xl mx-auto">Click the steps below to trace how a user command "Buy 100 shares of INFY" travels through the architecture.</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center relative gap-8 md:gap-4">
+                    
+                    <!-- Connector Line (Desktop) -->
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-stone-700 -z-0 transform -translate-y-1/2"></div>
+
+                    <!-- Step 1 -->
+                    <button onclick="updateFlow(1)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-sky-500 group-hover:text-white" id="step-1-circle">
+                            🗣️
+                        </div>
+                        <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-sky-300 transition-colors">1. Input</span>
+                        <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Voice/Text captured</div>
+                    </button>
+
+                    <!-- Step 2 -->
+                    <button onclick="updateFlow(2)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-violet-500 group-hover:text-white" id="step-2-circle">
+                            🤖
+                        </div>
+                        <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-violet-300 transition-colors">2. Intent</span>
+                        <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Router & Planner</div>
+                    </button>
+
+                    <!-- Step 3 -->
+                    <button onclick="updateFlow(3)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-orange-500 group-hover:text-white" id="step-3-circle">
+                            🧠
+                        </div>
+                        <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-orange-300 transition-colors">3. Strategy</span>
+                        <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">DSL Conversion</div>
+                    </button>
+
+                    <!-- Step 4 -->
+                    <button onclick="updateFlow(4)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-red-500 group-hover:text-white" id="step-4-circle">
+                            🛡️
+                        </div>
+                        <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-red-300 transition-colors">4. Risk</span>
+                        <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Guardrails Check</div>
+                    </button>
+
+                    <!-- Step 5 -->
+                    <button onclick="updateFlow(5)" class="flow-step relative z-10 flex flex-col items-center group w-full md:w-auto">
+                        <div class="w-12 h-12 rounded-full bg-stone-600 border-4 border-stone-800 flex items-center justify-center text-xl shadow-lg transition-all duration-300 group-hover:bg-emerald-500 group-hover:text-white" id="step-5-circle">
+                            🚀
+                        </div>
+                        <span class="mt-3 text-sm font-bold text-stone-400 group-hover:text-emerald-300 transition-colors">5. Exec</span>
+                        <div class="mt-2 text-xs text-stone-500 text-center w-24 hidden md:block">Broker API</div>
+                    </button>
+
+                </div>
+
+                <!-- Dynamic Flow Description -->
+                <div id="flow-description" class="mt-10 p-6 bg-stone-900 rounded-lg border border-stone-700 text-center min-h-[120px] flex flex-col justify-center items-center transition-all duration-500 opacity-100">
+                    <h3 class="text-lg font-bold text-white mb-2">Select a step to analyze the flow</h3>
+                    <p class="text-stone-400">The journey of a trade begins at the user surface and ends at the market.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 border-t border-stone-800 text-stone-500 py-8 text-center text-xs">
+        <p>&copy; 2025 AI Co-Pilot Architecture Visualization. Generated from System Report.</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- DATA STORE: Layer Content & Configurations ---
+        const layers = {
+            surfaces: {
+                title: "User Surfaces",
+                icon: "📱",
+                desc: "The entry point for all interactions. Whether voice via mobile, text via web, or programmatic access via SDKs, this layer normalizes input.",
+                color: "sky",
+                components: [
+                    { title: "Web Application", desc: "React-based dashboard for complex analysis." },
+                    { title: "Mobile Apps", desc: "Native iOS/Android with voice-first capabilities." },
+                    { title: "Browser Extensions", desc: "Contextual overlay for quick actions." },
+                    { title: "Broker SDKs", desc: "Integration libraries for partner platforms." }
+                ],
+                chartConfig: {
+                    type: 'doughnut',
+                    label: 'Active Sessions',
+                    labels: ['Mobile App', 'Web Dashboard', 'API/SDK', 'Browser Ext'],
+                    data: [45, 30, 15, 10],
+                    colors: ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'],
+                    context: "Traffic distribution shows high mobile engagement for execution, web for research."
+                }
+            },
+            agentic: {
+                title: "Agentic Co-Pilot Layer",
+                icon: "🤖",
+                desc: "The interface logic layer. It parses raw input into structured intent, plans execution steps, and maintains user context memory.",
+                color: "violet",
+                components: [
+                    { title: "Intent Router", desc: "Classifies input: 'Trade', 'Screen', 'Analyze'." },
+                    { title: "Planner & Orchestrator", desc: "Breaks goals into sequential tasks." },
+                    { title: "User Memory", desc: "Stores past trades, preferences, and context." },
+                    { title: "Multi-modal Input", desc: "Processes Voice-to-Text and Image inputs." }
+                ],
+                chartConfig: {
+                    type: 'bar',
+                    label: 'Intent Classification Confidence',
+                    labels: ['Buy Order', 'Sell Order', 'Portfolio Check', 'Market News', 'Strategy Build'],
+                    data: [98, 97, 99, 92, 85],
+                    colors: ['#8b5cf6', '#8b5cf6', '#8b5cf6', '#a78bfa', '#c4b5fd'],
+                    context: "High confidence in transactional intents; 'Strategy Build' requires more conversational turns."
+                }
+            },
+            intelligence: {
+                title: "Trading Intelligence",
+                icon: "🧠",
+                desc: "The core brain. Contains the Strategy Management Service, the No-Code DSL engine, and the Explainability Engine.",
+                color: "orange",
+                components: [
+                    { title: "Strategy Mgmt", desc: "Lifecycle management of trading algos." },
+                    { title: "DSL Engine", desc: "Natural Language -> Executable Code." },
+                    { title: "Explainability", desc: "Generates plain-text rationale for decisions." },
+                    { title: "Risk & Discipline", desc: "Pre-trade checks and guardrails." },
+                    { title: "Order Execution", desc: "Smart routing logic." }
+                ],
+                chartConfig: {
+                    type: 'line',
+                    label: 'Strategy Success Rate (%)',
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    data: [65, 68, 72, 70, 75, 78],
+                    colors: ['#f97316'],
+                    context: "Consistent improvement in strategy performance due to AI model fine-tuning."
+                }
+            },
+            connector: {
+                title: "Connector Layer",
+                icon: "🔌",
+                desc: "The 'Hands' of the system. Handles the last mile connectivity to brokers, markets, and legacy systems.",
+                color: "emerald",
+                components: [
+                    { title: "Broker APIs", desc: "Standard REST/WebSocket integration." },
+                    { title: "DOM Automation", desc: "Legacy fallback for non-API platforms." },
+                    { title: "Market Data Feeds", desc: "Real-time tick data ingestion." },
+                    { title: "Portfolio Sync", desc: "Reconciliation of holdings." }
+                ],
+                chartConfig: {
+                    type: 'line',
+                    label: 'Data Feed Latency (ms)',
+                    labels: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
+                    data: [45, 120, 80, 60, 65, 90, 150],
+                    colors: ['#10b981'],
+                    context: "Latency spikes observed during market open (09:15) and close (15:30)."
+                }
+            },
+            compliance: {
+                title: "Compliance Layer",
+                icon: "🛡️",
+                desc: "Cross-cutting layer ensuring safety. Wraps around Intelligence and Connector layers to enforce SEBI rules and Privacy.",
+                color: "red",
+                components: [
+                    { title: "SEBI Guardrails", desc: "Hard blocks for non-compliant trades." },
+                    { title: "Privacy Controls", desc: "PII redaction and data masking." },
+                    { title: "Audit Logs", desc: "Immutable record of all AI actions." }
+                ],
+                chartConfig: {
+                    type: 'doughnut',
+                    label: 'Risk Checks',
+                    labels: ['Passed', 'Blocked (Margin)', 'Blocked (Risk)', 'Blocked (Compliance)'],
+                    data: [85, 8, 5, 2],
+                    colors: ['#22c55e', '#facc15', '#f97316', '#ef4444'],
+                    context: "Majority of trades pass, with Margin limits being the most common blocker."
+                }
+            },
+            platform: {
+                title: "Platform Layer",
+                icon: "🏗️",
+                desc: "The foundation providing reliability, observability, and experimentation capabilities for the entire stack.",
+                color: "slate",
+                components: [
+                    { title: "Observability", desc: "Distributed tracing and logging." },
+                    { title: "Rate Limits", desc: "API throttling and fairness." },
+                    { title: "Cost Attribution", desc: "Token usage tracking per user." },
+                    { title: "Eval Harness", desc: "A/B testing for model versions." }
+                ],
+                chartConfig: {
+                    type: 'bar',
+                    label: 'API Costs (Tokens)',
+                    labels: ['Strategy Gen', 'Market Query', 'Portfolio Sync', 'Chat'],
+                    data: [5000, 2000, 1500, 3000],
+                    colors: ['#64748b', '#94a3b8', '#cbd5e1', '#475569'],
+                    context: "Strategy Generation is the most compute-intensive operation."
+                }
+            }
+        };
+
+        const flowSteps = {
+            1: {
+                title: "Input Processing",
+                desc: "User says 'Buy 100 shares of INFY'. The <strong>User Surface</strong> captures this audio, converts it to text, and sends raw data to the Agentic Layer.",
+                color: "bg-sky-500"
+            },
+            2: {
+                title: "Intent Recognition",
+                desc: "The <strong>Intent Router</strong> identifies the goal as 'Execute Trade'. The <strong>Planner</strong> checks User Memory for preferences (e.g., 'Always use limit orders').",
+                color: "bg-violet-500"
+            },
+            3: {
+                title: "Strategy & Logic",
+                desc: "The <strong>Trading Intelligence</strong> layer validates the ticker. If it was a complex request ('Buy if RSI < 30'), the <strong>DSL Engine</strong> would convert logic to code.",
+                color: "bg-orange-500"
+            },
+            4: {
+                title: "Risk Guardrails",
+                desc: "CRITICAL STEP: The <strong>Risk Engine</strong> intercepts the order. It checks: Is there enough margin? Does this violate SEBI rules? Is the position size safe?",
+                color: "bg-red-500"
+            },
+            5: {
+                title: "Execution",
+                desc: "Passed! The <strong>Connector Layer</strong> formats the API request and sends it to the specific Broker. Order ID is returned and synced.",
+                color: "bg-emerald-500"
+            }
+        };
+
+        // --- CHART INSTANCE ---
+        let currentChart = null;
+
+        // --- CORE FUNCTIONS ---
+
+        function initChart(config) {
+            const ctx = document.getElementById('layerChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // Plugin for Multi-line Labels (Mandatory per requirements)
+            const tooltipPlugin = {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            } else {
+                                return label;
+                            }
+                        }
+                    }
+                }
+            };
+
+            currentChart = new Chart(ctx, {
+                type: config.type,
+                data: {
+                    labels: config.labels.map(l => wrapLabel(l)), // Apply wrap logic
+                    datasets: [{
+                        label: config.label,
+                        data: config.data,
+                        backgroundColor: config.colors,
+                        borderColor: config.colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        ...tooltipPlugin,
+                        legend: {
+                            display: config.type !== 'bar' && config.type !== 'line',
+                            position: 'bottom'
+                        }
+                    },
+                    scales: (config.type === 'bar' || config.type === 'line') ? {
+                        y: { beginAtZero: true }
+                    } : {}
+                }
+            });
+        }
+
+        function wrapLabel(label) {
+            if (label.length <= 16) return label;
+            const words = label.split(' ');
+            let lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= 16) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        function selectLayer(layerId) {
+            const data = layers[layerId];
+            
+            // 1. Visual Selection Logic
+            document.querySelectorAll('.layer-card').forEach(card => {
+                card.classList.remove('active', 'border-l-4');
+                // Reset border colors to default hover state handling in CSS
+                card.style.borderLeftColor = 'transparent';
+            });
+            
+            const activeBtn = document.getElementById(`btn-${layerId}`);
+            activeBtn.classList.add('active');
+            
+            // Map simple color names to tailwind hex for JS manipulation if needed, 
+            // but here we use the class logic.
+            const colorMap = {
+                sky: '#0ea5e9', violet: '#8b5cf6', orange: '#f97316', 
+                emerald: '#10b981', red: '#ef4444', slate: '#64748b'
+            };
+            activeBtn.style.borderLeftColor = colorMap[data.color];
+
+            // 2. Update Text Content
+            document.getElementById('detail-icon').textContent = data.icon;
+            document.getElementById('detail-title').textContent = data.title;
+            document.getElementById('detail-desc').textContent = data.desc;
+            document.getElementById('chart-context').textContent = data.chartConfig.context;
+            document.getElementById('viz-badge').textContent = data.chartConfig.label;
+            
+            // Update Badge Color
+            const badge = document.getElementById('viz-badge');
+            badge.className = `px-2 py-1 text-xs font-medium rounded-full bg-${data.color}-100 text-${data.color}-700`;
+
+            // 3. Update Component Grid
+            const grid = document.getElementById('component-grid');
+            grid.innerHTML = '';
+            data.components.forEach(comp => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded border border-stone-200 shadow-sm hover:shadow-md transition-shadow";
+                card.innerHTML = `
+                    <h4 class="font-bold text-stone-700 text-sm mb-1">${comp.title}</h4>
+                    <p class="text-xs text-stone-500">${comp.desc}</p>
+                `;
+                grid.appendChild(card);
+            });
+
+            // 4. Update Chart
+            initChart(data.chartConfig);
+        }
+
+        function updateFlow(step) {
+            const data = flowSteps[step];
+            const contentDiv = document.getElementById('flow-description');
+            
+            // Reset Styles
+            document.querySelectorAll('[id^="step-"]').forEach(el => {
+                el.classList.remove('scale-110', 'ring-4', 'ring-white');
+            });
+
+            // Highlight Circle
+            const circle = document.getElementById(`step-${step}-circle`);
+            circle.classList.add('scale-110', 'ring-4', 'ring-white');
+
+            // Animate Content Swap
+            contentDiv.style.opacity = '0';
+            setTimeout(() => {
+                contentDiv.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full ${data.color}"></span>
+                        Step ${step}: ${data.title}
+                    </h3>
+                    <p class="text-stone-300 max-w-xl mx-auto">${data.desc}</p>
+                `;
+                contentDiv.style.opacity = '1';
+            }, 300);
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            selectLayer('surfaces'); // Default selection
+        });
+        
+        document.getElementById('reset-view-btn').addEventListener('click', () => {
+            selectLayer('surfaces');
+        });
+
+    </script>
+</body>
+</html>
